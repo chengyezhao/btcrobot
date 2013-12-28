@@ -16,14 +16,12 @@ URL_OKCOIN = r"http://www.okcoin.com/api/trades.do?&suffix="
 URL_OKCOIN_LTC = r"http://www.okcoin.com/api/trades.do?symbol=ltc_cny&suffix="
 
 def getTransFromUrl(url):
-    #get json docuemnt from url
     url = url + str(random.random())
     buf = cStringIO.StringIO()
     c = pycurl.Curl()
     c.setopt(c.URL, url)
     c.setopt(c.WRITEFUNCTION, buf.write)
     c.perform()
-    #print buf.getvalue()
     decode = json.JSONDecoder()
     transJson = decode.decode(buf.getvalue())
     buf.close()
