@@ -5,9 +5,11 @@ import TransJob
 import time
 from datetime import datetime
 from pymongo import MongoClient
+import sys
 import schedule
 
-client = MongoClient('mongodb://115.28.4.59:27017/')
+print sys.argv[1]
+client = MongoClient(sys.argv[1])
 db = client.trans
 
 def MTGOXJob():
@@ -15,7 +17,7 @@ def MTGOXJob():
     print "====MTGOXJob " + str(datetime.now()) + ", new transaction: " + str(n)
 
 def BTCCHINAJob():
-    n = insertTrans(getTransFromUrl(TransJob.URL_MTGOX), db.btcchinabtccny, "btcchinabtccny")
+    n = insertTrans(getTransFromUrl(TransJob.URL_BTCCHINA), db.btcchinabtccny, "btcchinabtccny")
     print "====BTCCHINAJob " + str(datetime.now()) + ", new transaction: " + str(n)
 
 
@@ -37,6 +39,8 @@ time.sleep(1)
 schedule.every(5).seconds.do(BTCCHINAJob)
 time.sleep(1)
 schedule.every(5).seconds.do(BTECJob)
+time.sleep(1)
+schedule.every(5).seconds.do(OKCOINJob)
 time.sleep(1)
 schedule.every(5).seconds.do(OKCOINLTCJob)
 

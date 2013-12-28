@@ -12,8 +12,8 @@ from datetime import datetime
 URL_MTGOX = r"http://info.btc123.com/lib/jsonProxyEx.php?type=MtGoxTradesv2NODB&suffix="
 URL_BTCCHINA = r"http://info.btc123.com/lib/jsonProxyEx.php?type=btctradeTrades&suffix="
 URL_BTCE = r"http://i.btc123.com/lib/jsonProxyEx.php?type=btceBTCUSDtrades&suffix="
-URL_OKCOIN = r"http://www.okcoin.com/api/trades.do"
-URL_OKCOIN_LTC = r"http://www.okcoin.com/api/trades.do?symbol=ltc_cny"
+URL_OKCOIN = r"http://www.okcoin.com/api/trades.do?&suffix="
+URL_OKCOIN_LTC = r"http://www.okcoin.com/api/trades.do?symbol=ltc_cny&suffix="
 
 def getTransFromUrl(url):
     #get json docuemnt from url
