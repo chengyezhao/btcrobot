@@ -23,12 +23,23 @@ def BTECJob():
     n = insertTrans(getTransFromUrl(TransJob.URL_BTCE), db.btcebtcusd, "btcebtcusd")
     print "====BTECJob " + str(datetime.now()) + ", new transaction: " + str(n)
 
+def OKCOINJob():
+    n = insertTrans(getTransFromUrl(TransJob.URL_OKCOIN), db.okcoinbtccny, "okcoinbtccny")
+    print "====OKCOINJob " + str(datetime.now()) + ", new transaction: " + str(n)
 
-schedule.every(10).seconds.do(MTGOXJob)
+def OKCOINLTCJob():
+    n = insertTrans(getTransFromUrl(TransJob.URL_OKCOIN_LTC), db.okcoinltccny, "okcoinltccny")
+    print "====OKCOINLTCJob " + str(datetime.now()) + ", new transaction: " + str(n)
+
+
+schedule.every(5).seconds.do(MTGOXJob)
 time.sleep(1)
-schedule.every(10).seconds.do(BTCCHINAJob)
+schedule.every(5).seconds.do(BTCCHINAJob)
 time.sleep(1)
-schedule.every(10).seconds.do(BTECJob)
+schedule.every(5).seconds.do(BTECJob)
+time.sleep(1)
+schedule.every(5).seconds.do(OKCOINLTCJob)
+
 
 
 while True:
