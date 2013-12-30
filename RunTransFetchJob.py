@@ -21,20 +21,24 @@ def MTGOXJob():
 
 def BTCCHINAJob():
     n = insertTrans(getTransFromUrl(TransJob.URL_BTCCHINA), db.btcchinabtccny, "btcchinabtccny")
-    logging.info( "BTCCHINAJob " +  ", new transaction: " + str(n))
+    logging.info("BTCCHINAJob " + ", new transaction: " + str(n))
 
 
 def BTECJob():
     n = insertTrans(getTransFromUrl(TransJob.URL_BTCE), db.btcebtcusd, "btcebtcusd")
-    logging.info( "`BTECJob " +  ", new transaction: " + str(n))
+    logging.info("BTECJob " + ", new transaction: " + str(n))
 
 def OKCOINJob():
     n = insertTrans(getTransFromUrl(TransJob.URL_OKCOIN), db.okcoinbtccny, "okcoinbtccny")
-    logging.info( "OKCOINJob " +  ", new transaction: " + str(n))
+    logging.info("OKCOINJob " + ", new transaction: " + str(n))
 
 def OKCOINLTCJob():
     n = insertTrans(getTransFromUrl(TransJob.URL_OKCOIN_LTC), db.okcoinltccny, "okcoinltccny")
-    logging.info( "OKCOINLTCJob " +  ", new transaction: " + str(n))
+    logging.info("OKCOINLTCJob " + ", new transaction: " + str(n))
+
+def FXBTCJob():
+    n = insertTrans(getTransFromUrl(TransJob.URL_FXBTC), db.fxbtccny, "fxbtccny")
+    logging.info("FXBTCJob " + ", new transaction: " + str(n))
 
 
 schedule.every(5).seconds.do(MTGOXJob)
@@ -46,6 +50,8 @@ time.sleep(1)
 schedule.every(5).seconds.do(OKCOINJob)
 time.sleep(1)
 schedule.every(5).seconds.do(OKCOINLTCJob)
+time.sleep(1)
+schedule.every(5).seconds.do(FXBTCJob)
 time.sleep(1)
 
 

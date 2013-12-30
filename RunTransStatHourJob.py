@@ -23,7 +23,8 @@ collections = [
     (db1.btcchinabtccny, db2.btcchinabtccny_hr),
     (db1.btcebtcusd, db2.btcebtcusd_hr),
     (db1.okcoinbtccny, db2.okcoinbtccny_hr),
-    (db1.okcoinltccny, db2.okcoinltccny_hr)
+    (db1.okcoinltccny, db2.okcoinltccny_hr),
+    (db1.fxbtccny, db2.fxbtccny_hr)
 ]
 
 for n in range(0, int(N)):

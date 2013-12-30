@@ -12,6 +12,7 @@ URL_BTCCHINA = r"http://info.btc123.com/lib/jsonProxyEx.php?type=btctradeTrades&
 URL_BTCE = r"http://i.btc123.com/lib/jsonProxyEx.php?type=btceBTCUSDtrades&suffix="
 URL_OKCOIN = r"http://www.okcoin.com/api/trades.do?&suffix="
 URL_OKCOIN_LTC = r"http://www.okcoin.com/api/trades.do?symbol=ltc_cny&suffix="
+URL_FXBTC = r"http://data.fxbtc.com/api?op=query_last_trades&symbol=btc_cny&count=100&suffix="
 
 
 def getTransFromUrl(url):
@@ -34,16 +35,30 @@ def getTransFromUrl(url):
 
 def insertTrans(trans, collection, symbol):
     n = 0
-    for tran in trans:
-        new_trans = {
-            '_id': hashlib.md5(symbol + str(tran['date']) + str(tran['amount']) + str(tran['price'])).hexdigest(),
-            'date': datetime.fromtimestamp(int(tran['date'])), 'price': float(tran['price']),
-            'amount': float(tran['amount'])
-        }
-        #check whether transaction already it exits
-        if not collection.find_one({"_id": new_trans['_id']}):
-            collection.insert(new_trans)
-            n += 1
+    if symbol == "fxbtccny" and trans['result'] == True:
+        for tran in trans['datas']:
+            new_trans = {
+                '_id': tran['ticket'],
+                'date': datetime.fromtimestamp(int(tran['date'])),
+                'price': float(tran['rate']),
+                'amount': float(tran['vol'])
+            }
+            #check whether transaction already it exits
+            if not collection.find_one({"_id": new_trans['_id']}):
+                collection.insert(new_trans)
+                n += 1
+    else:
+        for tran in trans:
+            new_trans = {
+                '_id': hashlib.md5(symbol + str(tran['date']) + str(tran['amount']) + str(tran['price'])).hexdigest(),
+                'date': datetime.fromtimestamp(int(tran['date'])),
+                'price': float(tran['price']),
+                'amount': float(tran['amount'])
+            }
+            #check whether transaction already it exits
+            if not collection.find_one({"_id": new_trans['_id']}):
+                collection.insert(new_trans)
+                n += 1
 
     return n
 
