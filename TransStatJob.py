@@ -34,12 +34,14 @@ def calculateBasicTransStat(from_ts, to_ts, trans):
 
 
 def createTransStat(from_ts, to_ts, func, from_collection, to_collection):
-    if not to_collection.find_one({"from": from_ts, "to": to_ts}):
-        trans = TransJob.getTransByDate(from_ts, to_ts, from_collection)
-        stat = func(from_ts, to_ts, trans)
+    trans = TransJob.getTransByDate(from_ts, to_ts, from_collection)
+    stat = func(from_ts, to_ts, trans)
+    e = to_collection.find_one({"from": from_ts, "to": to_ts})
+    if not e:
         to_collection.insert(stat)
     else:
-        return to_collection.find_one({"from": from_ts, "to": to_ts})
+        stat["_id"] = e["_id"]
+        return to_collection.save(stat)
 
 
 def getTransStatLastN(n, collection):
