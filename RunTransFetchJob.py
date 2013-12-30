@@ -46,7 +46,7 @@ time.sleep(1)
 schedule.every(5).seconds.do(OKCOINJob)
 time.sleep(1)
 schedule.every(5).seconds.do(OKCOINLTCJob)
-
+time.sleep(1)
 
 
 while True:
