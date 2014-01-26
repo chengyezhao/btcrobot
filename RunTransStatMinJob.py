@@ -22,9 +22,9 @@ collections = [
     (db1.mtgoxbtcusd, db2.mtgoxbtcusd_min),
     (db1.btcchinabtccny, db2.btcchinabtccny_min),
     (db1.btcebtcusd, db2.btcebtcusd_min),
-    (db1.okcoinbtccny, db2.okcoinbtccny_min),
-    (db1.okcoinltccny, db2.okcoinltccny_min),
-    (db1.fxbtccny, db2.fxbtccny_min),
+    #(db1.okcoinbtccny, db2.okcoinbtccny_min),
+    #(db1.okcoinltccny, db2.okcoinltccny_min),
+    #(db1.fxbtccny, db2.fxbtccny_min),
     (db1.cnbtc, db2.cnbtc_min)
 ]
 
