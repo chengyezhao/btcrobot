@@ -40,6 +40,10 @@ def FXBTCJob():
     n = insertTrans(getTransFromUrl(TransJob.URL_FXBTC), db.fxbtccny, "fxbtccny")
     logging.info("FXBTCJob " + ", new transaction: " + str(n))
 
+def CNBTCJob():
+    n = insertTrans(getTransFromUrl(TransJob.URL_CNBTC), db.cnbtc, "cnbtc")
+    logging.info("CNBTC " + ", new transaction: " + str(n))
+
 
 schedule.every(5).seconds.do(MTGOXJob)
 time.sleep(1)
@@ -52,6 +56,8 @@ time.sleep(1)
 schedule.every(5).seconds.do(OKCOINLTCJob)
 time.sleep(1)
 schedule.every(5).seconds.do(FXBTCJob)
+time.sleep(1)
+schedule.every(5).seconds.do(CNBTCJob)
 time.sleep(1)
 
 

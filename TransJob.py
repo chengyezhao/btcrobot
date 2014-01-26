@@ -13,6 +13,7 @@ URL_BTCE = r"http://i.btc123.com/lib/jsonProxyEx.php?type=btceBTCUSDtrades&suffi
 URL_OKCOIN = r"http://www.okcoin.com/api/trades.do?&suffix="
 URL_OKCOIN_LTC = r"http://www.okcoin.com/api/trades.do?symbol=ltc_cny&suffix="
 URL_FXBTC = r"http://data.fxbtc.com/api?op=query_last_trades&symbol=btc_cny&count=100&suffix="
+URL_CNBTC = r"http://api.chbtc.com/data/trades?suffix="
 
 
 def getTransFromUrl(url):
