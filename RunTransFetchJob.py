@@ -1,7 +1,9 @@
 __author__ = 'chengye'
 
 from TransJob import insertTrans, getTransFromUrl
+from DepthJob import insertDepth, getDepthFromUrl
 import TransJob
+import DepthJob
 import time
 from pymongo import MongoClient
 import sys
@@ -14,6 +16,7 @@ logging.basicConfig(filename = os.path.join(os.getcwd(), 'RunTransFetchJob.log')
 logging.info("Connect to mongodb at " + sys.argv[1])
 client = MongoClient(sys.argv[1])
 db = client.trans
+db2 = client.depths
 
 def MTGOXJob():
     n = insertTrans(getTransFromUrl(TransJob.URL_MTGOX), db.mtgoxbtcusd, "mtgoxbtcusd")
@@ -44,6 +47,11 @@ def CNBTCJob():
     n = insertTrans(getTransFromUrl(TransJob.URL_CNBTC), db.cnbtc, "cnbtc")
     logging.info("CNBTC " + ", new transaction: " + str(n))
 
+def CNBTC_DEPTH_JOB():
+    f = insertDepth(getDepthFromUrl(DepthJob.URL_CNBTC), db2.cnbtc)
+    if f:
+        logging.info("CNBTC " + ", new depth get")
+
 
 schedule.every(5).seconds.do(MTGOXJob)
 time.sleep(1)
@@ -51,14 +59,9 @@ schedule.every(5).seconds.do(BTCCHINAJob)
 time.sleep(1)
 schedule.every(5).seconds.do(BTECJob)
 time.sleep(1)
-#schedule.every(5).seconds.do(OKCOINJob)
-#time.sleep(1)
-#schedule.every(5).seconds.do(OKCOINLTCJob)
-#time.sleep(1)
-#schedule.every(5).seconds.do(FXBTCJob)
-#time.sleep(1)
 schedule.every(5).seconds.do(CNBTCJob)
 time.sleep(1)
+schedule.every(5).seconds.do(CNBTC_DEPTH_JOB)
 
 
 while True:
