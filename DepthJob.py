@@ -24,13 +24,17 @@ def getDepthFromUrl(url):
         decode = json.JSONDecoder()
         transJson = decode.decode(buf.getvalue())
         buf.close()
-        return transJson
+        if 'bids' in transJson and 'asks' in transJson:
+            return transJson
+        return False
     except pycurl.error, error:
-        return []
+        return False
 
 
 
 def insertDepth(depths, collection):
+    if not depths:
+        return False
     new_depth = {
         '_id' : hashlib.md5(str(depths)).hexdigest(),
         'date': datetime.now(),
