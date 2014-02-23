@@ -6,10 +6,9 @@ import TransJob
 import DepthJob
 import time
 from pymongo import MongoClient
-import sys
+import sys, os
 import schedule
 import logging
-import os
 
 logging.basicConfig(filename = os.path.join(os.getcwd(), 'RunTransFetchJob.log'), level = logging.INFO)
 

@@ -1,6 +1,7 @@
 __author__ = 'yunling'
 
 from datetime import datetime, timedelta
+import Util
 
 
 class Market:
@@ -13,6 +14,7 @@ class Market:
         self.depth = depth
         self.stat_min = stat_min
         self.stat_hour = stat_hour
+        self.now = False
 
     def __2array(self, cursor):
         result = []
@@ -20,6 +22,14 @@ class Market:
             result.append(i)
         return result
 
+    def __now(self):
+        if not self.now:
+            return datetime.now()
+        else:
+            return self.now
+
+    def setNow(self, t):
+        self.now = t
 
     ##  methods to get Transaction level information
     def getTransByDate(self, from_ts, to_ts):
@@ -29,26 +39,26 @@ class Market:
         }}))
 
     def getTransInThisMin(self):
-        to_ts = datetime.now()
+        to_ts = self.__now()
         from_ts = datetime(to_ts.year, to_ts.month, to_ts.day,
                            to_ts.hour, to_ts.minute, 0, 0)
         return self.getTransByDate(from_ts, to_ts)
 
     def getTransInLastNMin(self, n=1):
-        rt = datetime.now()
+        rt = self.__now()
         to_ts = datetime(rt.year, rt.month, rt.day,
                          rt.hour, rt.minute, 0, 0)
         from_ts = to_ts - timedelta(seconds=n * 60)
         return self.getTransByDate(from_ts, to_ts)
 
     def getTransInThisHour(self):
-        to_ts = datetime.now()
+        to_ts = self.__now()
         from_ts = datetime(to_ts.year, to_ts.month, to_ts.day,
                            to_ts.hour, 0, 0, 0)
         return self.getTransByDate(from_ts, to_ts)
 
     def getTransInLastNHour(self, n=1):
-        rt = datetime.now()
+        rt = self.__now()
         to_ts = datetime(rt.year, rt.month, rt.day,
                          rt.hour, 0, 0, 0)
         from_ts = to_ts - timedelta(seconds=n * 3600)
@@ -64,7 +74,7 @@ class Market:
         return self.__2array(self.depth.find().sort([("date", -1)]).limit(1))[0]
 
     def getTopNDepth(self, N):
-        return self.__2array(self.depth.find({},{"date":1, "asks": {"$slice": -N}, "bids":{"$slice": N}}).sort([("date", -1)]).limit(1))[0]
+        return self.__2array(self.depth.find({}, {"date":1, "asks": {"$slice": -N}, "bids":{"$slice": N}}).sort([("date", -1)]).limit(1))[0]
 
     def getTopDepth(self):
         result = self.getTopNDepth(1)
@@ -74,17 +84,26 @@ class Market:
 
     ## method to get market statistics
     def getLastNMinStat(self, N):
-        r =  self.__2array(self.stat_min.find().sort([("from", -1)]).limit(N))
+        r = self.__2array(self.stat_min.find({'from': {
+            "$lte": self.__now()
+        }}).sort([("from", -1)]).limit(N))
         r.reverse()
         return r
 
     def getLastNHourStat(self, N):
-        r = self.__2array(self.stat_hour.find().sort([("from",-1)]).limit(N))
+        r = self.__2array(self.stat_hour.find({'from': {
+            "$lte": self.__now()
+        }}).sort([("from", -1)]).limit(N))
         r.reverse()
         return r
 
-    def getMinStatByDate(self, from_ts, to_ts):
-        pass
+    def getMALastNMin(self, N, W):
+        raw = self.getLastNMinStat(N)
+        close_price = Util.nozeros([x['end'] for x in raw])
+        return Util.moving_average(close_price, W)
 
-    def getHourStatByDate(self, from_ts, to_ts):
-        pass
+    def getMALastNHour(self, N, W):
+        raw = self.getLastNHourStat(N)
+        close_price = Util.nozeros([x['end'] for x in raw])
+        return Util.moving_average(close_price, W)
+
