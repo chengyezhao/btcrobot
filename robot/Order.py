@@ -24,16 +24,6 @@ class Order:
         self.status = status
         self.traded_amount = traded_amount
 
-    def save(self, collection):
-        return collection.save({
-            '_id' : self.id,
-            'date': self.date,
-            'type': self.type,
-            'amount': self.amount,
-            'price': self.price,
-            'status': self.status,
-            'traded_amount': self.traded_amount
-        })
 
     def toJson(self):
         return {

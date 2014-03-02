@@ -12,14 +12,6 @@ class Balance:
         self.btc = btc
         self.btc_frozen = btc_frozen
 
-    def save(self, collection):
-        return collection.insert({
-            'date': self.date,
-            'btc': self.btc,
-            'btc_frozen': self.btc_frozen,
-            'cny': self.cny,
-            'cny_frozen': self.cny_frozen
-        })
 
     def update(self, cny, cny_frozen, btc, btc_frozen):
         self.date = datetime.now()

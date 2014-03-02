@@ -13,8 +13,10 @@ logging.basicConfig(filename = os.path.join(os.getcwd(), 'CNBTC_Trader.log'), le
 
 class Trader:
 
-    def __init__(self):
+    def __init__(self, orderCollection, balanceCollection):
         self.api = chbtc_api_python.chbtc_api(chbtc_api_python.ACCESS_KEY, chbtc_api_python.SECRET_KEY)
+        self.balanceCollection = balanceCollection
+        self.orderCollection = orderCollection
 
     def getAccountBalance(self):
         result = self.api.query_account()
@@ -69,6 +71,26 @@ class Trader:
         for ord in result:
             orders.append(Order.fromCNBTCOrder(ord))
         return orders
+
+    def saveOrder(self, order):
+        return self.orderCollection.save({
+            '_id' : order.id,
+            'date': order.date,
+            'type': order.type,
+            'amount': order.amount,
+            'price': order.price,
+            'status': order.status,
+            'traded_amount': order.traded_amount
+        })
+
+    def saveBalance(self, balance):
+        return self.balanceCollection.insert({
+            'date': balance.date,
+            'btc': balance.btc,
+            'btc_frozen': balance.btc_frozen,
+            'cny': balance.cny,
+            'cny_frozen': balance.cny_frozen
+        })
 
 
 

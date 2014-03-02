@@ -116,7 +116,6 @@ class Market:
         return Util.marketTrendIndex(useful_price, useful_meas)
 
 
-
 if __name__ == '__main__':
     from pymongo import MongoClient
     import matplotlib.pyplot as plt
