@@ -19,7 +19,7 @@ N = 60*200
 M = 24*20
 client = MongoClient("mongodb://115.28.4.59:27017")
 market = Market(client.trans.cnbtc, client.depths.cnbtc, client.trans_stat.cnbtc_min, client.trans_stat.cnbtc_hr)
-market.setNow(datetime.datetime(2014, 2, 1, 0, 0, 0, 0))
+#market.setNow(datetime.datetime(2014, 2, 1, 0, 0, 0, 0))
 raw_min_data = market.getLastNMinStat(N)
 raw_hr_data = market.getLastNHourStat(M)
 min_date = [x['from'] for x in raw_min_data]

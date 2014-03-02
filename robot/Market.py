@@ -107,3 +107,34 @@ class Market:
         close_price = Util.nozeros([x['end'] for x in raw])
         return Util.moving_average(close_price, W)
 
+    def getMarketTrendIndexWithWindow(self, W):
+        raw_min_data = self.getLastNMinStat(W * 2)
+        min_price_data = Util.nozeros([x['end'] for x in raw_min_data])
+        meas = Util.moving_average(min_price_data, W)
+        useful_price = min_price_data[-(N+1):-1]
+        useful_meas = meas[-(N+1):-1]
+        return Util.marketTrendIndex(useful_price, useful_meas)
+
+
+
+if __name__ == '__main__':
+    from pymongo import MongoClient
+    import matplotlib.pyplot as plt
+    client = MongoClient("mongodb://115.28.4.59:27017")
+    market = Market(client.trans.cnbtc, client.depths.cnbtc, client.trans_stat.cnbtc_min, client.trans_stat.cnbtc_hr)
+    now = datetime.now()
+    market.setNow(now)
+    N = 5 * 60
+    M = 1 * 24 * 12
+    ia = []
+    t = []
+    for i in range(0, M):
+        market.setNow(now - timedelta(seconds=i * 60 * 5))
+        t.append(now - timedelta(seconds=i * 60 * 5))
+        index = market.getMarketTrendIndexWithWindow(N)
+        ia.append(index)
+    ia.reverse()
+    t.reverse()
+    plt.plot(t, ia, '-o')
+    plt.grid()
+    plt.show()

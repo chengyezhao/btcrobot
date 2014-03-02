@@ -105,8 +105,8 @@ class chbtc_api:
 if __name__ == '__main__':
     api = chbtc_api(ACCESS_KEY, SECRET_KEY)
     print api.query_account()
-    #buy_result = api.buyOrder(0.001, 30)
-    #print buy_result
+    buy_result = api.buyOrder(0.001, 30)
+    print buy_result
     print api.getOrder(2014021232149695)
     print api.getBuyOrders()
     print api.getSellOrders()

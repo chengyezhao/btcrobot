@@ -75,3 +75,8 @@ def moving_average_convergence(x, nslow=26, nfast=12):
     emaslow = moving_average(x, nslow, type='exponential')
     emafast = moving_average(x, nfast, type='exponential')
     return emaslow, emafast, emafast - emaslow
+
+def marketTrendIndex(p, m):
+    x = np.asarray(p)
+    y = np.asarray(m)
+    return sum(x - y) / len(p)
