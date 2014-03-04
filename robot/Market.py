@@ -124,7 +124,7 @@ if __name__ == '__main__':
     now = datetime.now()
     market.setNow(now)
     N = 5 * 60
-    M = 1 * 24 * 12
+    M = 1 * 24 * 6
     ia = []
     t = []
     for i in range(0, M):
@@ -136,4 +136,4 @@ if __name__ == '__main__':
     t.reverse()
     plt.plot(t, ia, '-o')
     plt.grid()
-    plt.show()
+    plt.savefig("/home/wwwroot/default/MarketTrend.png")

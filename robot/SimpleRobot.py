@@ -31,14 +31,14 @@ class SimpleRobot:
             logging.info("BuyConfident = " + str(buyConfident))
             if buyConfident > 0.5:
                 self.clearSellOrder()
-                self.buy(balance.cny)
+                self.buy(SLICE_CNY_AMOUNT)
 
             #确定是否卖出
             sellConfident = self.strategy.getSellConfident(self.market)
             logging.info("SellConfident = " + str(sellConfident))
             if sellConfident > 0.5:
                 self.clearBuyOrder()
-                self.sell(balance.btc)
+                self.sell(SLICE_BTC_AMOUNT)
 
             time.sleep(SLEEP_TIME)
 

@@ -11,5 +11,5 @@ class SimpleStrategy:
         pass
 
     def getSellConfident(self):
-        pass
+        return 1 - self.getBuyConfident()
 
