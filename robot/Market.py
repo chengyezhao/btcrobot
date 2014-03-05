@@ -118,22 +118,28 @@ class Market:
 
 if __name__ == '__main__':
     from pymongo import MongoClient
+    import matplotlib
+    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     client = MongoClient("mongodb://115.28.4.59:27017")
     market = Market(client.trans.cnbtc, client.depths.cnbtc, client.trans_stat.cnbtc_min, client.trans_stat.cnbtc_hr)
     now = datetime.now()
-    market.setNow(now)
-    N = 5 * 60
-    M = 1 * 24 * 6
-    ia = []
-    t = []
-    for i in range(0, M):
-        market.setNow(now - timedelta(seconds=i * 60 * 5))
-        t.append(now - timedelta(seconds=i * 60 * 5))
-        index = market.getMarketTrendIndexWithWindow(N)
-        ia.append(index)
-    ia.reverse()
-    t.reverse()
-    plt.plot(t, ia, '-o')
-    plt.grid()
-    plt.savefig("/home/wwwroot/default/MarketTrend.png")
+    plt.figure(1, figsize=(15, 10))
+    for i in range(1, 5):
+        plt.subplot(410 + i)
+        market.setNow(now)
+        N = pow(2, i - 1) * 60
+        M = 1 * 24 * 6
+        ia = []
+        t = []
+        for i in range(0, M):
+            market.setNow(now - timedelta(seconds=i * 60 * 5))
+            t.append(now - timedelta(seconds=i * 60 * 5))
+            index = market.getMarketTrendIndexWithWindow(N)
+            ia.append(index)
+        ia.reverse()
+        t.reverse()
+        plt.plot(t, ia, '-o')
+        plt.title("Market Trend with N = " + str(N))
+        plt.grid()
+        plt.savefig("/Users/yunling/Documents/btcrobot/robot/MarketTrend.png")
