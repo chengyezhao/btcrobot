@@ -65,7 +65,7 @@ time.sleep(1)
 schedule.every(5).seconds.do(CNBTCJob)
 time.sleep(1)
 #schedule.every(1).seconds.do(CNBTC_DEPTH_JOB)
-schedule.every(5).seconds.do(HUOBIJob)
+schedule.every(15).seconds.do(HUOBIJob)
 
 
 while True:
