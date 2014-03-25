@@ -51,16 +51,21 @@ def CNBTC_DEPTH_JOB():
     if f:
         logging.info("CNBTC " + ", new depth get")
 
+def HUOBIJob():
+    n = insertTrans(getTransFromUrl(TransJob.URL_HUOBI), db.huobi, "huobi")
+    logging.info("HUOBI " + ", new transaction: " + str(n))
 
-schedule.every(5).seconds.do(MTGOXJob)
-time.sleep(1)
+
+#schedule.every(5).seconds.do(MTGOXJob)
+#time.sleep(1)
 schedule.every(5).seconds.do(BTCCHINAJob)
 time.sleep(1)
-schedule.every(5).seconds.do(BTECJob)
-time.sleep(1)
+#schedule.every(5).seconds.do(BTECJob)
+#time.sleep(1)
 schedule.every(5).seconds.do(CNBTCJob)
 time.sleep(1)
-schedule.every(1).seconds.do(CNBTC_DEPTH_JOB)
+#schedule.every(1).seconds.do(CNBTC_DEPTH_JOB)
+schedule.every(5).seconds.do(HUOBIJob)
 
 
 while True:

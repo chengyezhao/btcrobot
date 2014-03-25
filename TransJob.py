@@ -4,6 +4,7 @@ import pycurl
 import cStringIO
 import random
 import json
+import exceptions
 import hashlib
 from datetime import datetime, timedelta
 
@@ -14,6 +15,7 @@ URL_OKCOIN = r"http://www.okcoin.com/api/trades.do?&suffix="
 URL_OKCOIN_LTC = r"http://www.okcoin.com/api/trades.do?symbol=ltc_cny&suffix="
 URL_FXBTC = r"http://data.fxbtc.com/api?op=query_last_trades&symbol=btc_cny&count=100&suffix="
 URL_CNBTC = r"http://api.chbtc.com/data/trades?suffix="
+URL_HUOBI = r"http://info.btc123.com/lib/jsonProxyEx.php?type=huobiTrades&s="
 
 
 def getTransFromUrl(url):
@@ -30,7 +32,11 @@ def getTransFromUrl(url):
         transJson = decode.decode(buf.getvalue())
         buf.close()
         return transJson
-    except pycurl.error, error:
+    except ValueError:
+        return []
+    except pycurl.error:
+        return []
+    except error:
         return []
 
 

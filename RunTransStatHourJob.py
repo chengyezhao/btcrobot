@@ -19,13 +19,14 @@ N = sys.argv[2]
 #run by min, try to get trans in last 5 minutes, and calculated stat if not
 rt = datetime.now()
 collections = [
-    (db1.mtgoxbtcusd, db2.mtgoxbtcusd_hr),
+    #(db1.mtgoxbtcusd, db2.mtgoxbtcusd_hr),
     (db1.btcchinabtccny, db2.btcchinabtccny_hr),
-    (db1.btcebtcusd, db2.btcebtcusd_hr),
+    #(db1.btcebtcusd, db2.btcebtcusd_hr),
     #(db1.okcoinbtccny, db2.okcoinbtccny_hr),
     #(db1.okcoinltccny, db2.okcoinltccny_hr),
     #(db1.fxbtccny, db2.fxbtccny_hr),
-    (db1.cnbtc, db2.cnbtc_hr)
+    (db1.cnbtc, db2.cnbtc_hr),
+    (db1.huobi, db2.huobi_hr)
 ]
 
 for n in range(0, int(N)):
