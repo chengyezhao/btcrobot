@@ -1,7 +1,9 @@
 __author__ = 'chengye'
 
 import TransJob
-
+import robot.Util as Util
+from datetime import datetime, timedelta
+from pymongo import MongoClient
 
 def calculateBasicTransStat(from_ts, to_ts, trans):
     total_volume = 0
@@ -33,6 +35,8 @@ def calculateBasicTransStat(from_ts, to_ts, trans):
     return obj
 
 
+
+
 def createTransStat(from_ts, to_ts, func, from_collection, to_collection):
     trans = TransJob.getTransByDate(from_ts, to_ts, from_collection)
     stat = func(from_ts, to_ts, trans)
@@ -44,5 +48,47 @@ def createTransStat(from_ts, to_ts, func, from_collection, to_collection):
         return to_collection.save(stat)
 
 
+def __2array(cursor):
+    result = []
+    for i in cursor:
+        result.append(i)
+    return result
+
 def getTransStatLastN(n, collection):
     return collection.find().sort([("from", -1), ("to", -1)]).limit(n)
+
+def getLastNMinStat(N, collection):
+    r = __2array(collection.find({'from': {"$lte": datetime.now()}}).sort([("from", -1)]).limit(N))
+    r.reverse()
+    return r
+
+
+def getMarketTrendIndexWithWindow(collection, W):
+    raw_min_data = getLastNMinStat(W * 2, collection)
+    min_price_data = Util.nozeros([x['end'] for x in raw_min_data])
+    meas = Util.moving_average(min_price_data, W)
+    useful_price = min_price_data[-(W+1):-1]
+    useful_meas = meas[-(W+1):-1]
+    return Util.marketTrendIndex(useful_price, useful_meas)
+
+
+def insertMarketIndex(from_collection, to_collection):
+    index_60 = getMarketTrendIndexWithWindow(from_collection, 60)
+    index_120 = getMarketTrendIndexWithWindow(from_collection, 120)
+    index_240 = getMarketTrendIndexWithWindow(from_collection, 240)
+    index_480 = getMarketTrendIndexWithWindow(from_collection, 480)
+    obj = {
+        'date': datetime.now(),
+        'index_60': index_60,
+        'index_120': index_120,
+        'index_240':  index_240,
+        'index_480': index_480
+    }
+    to_collection.insert(obj)
+
+
+if __name__ == '__main__':
+    client = MongoClient("mongodb://115.28.4.59:27017")
+    db1 = client.trans
+    db2 = client.trans_stat
+    insertMarketIndex(db2.btcchinabtccny_min, db2.btcchinabtccny_index)

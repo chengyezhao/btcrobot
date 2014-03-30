@@ -20,13 +20,13 @@ N = sys.argv[2]
 rt = datetime.now()
 collections = [
     #(db1.mtgoxbtcusd, db2.mtgoxbtcusd_min),
-    (db1.btcchinabtccny, db2.btcchinabtccny_min),
+    (db1.btcchinabtccny, db2.btcchinabtccny_min, db2.btcchinabtccny_index),
     #(db1.btcebtcusd, db2.btcebtcusd_min),
     #(db1.okcoinbtccny, db2.okcoinbtccny_min),
     #(db1.okcoinltccny, db2.okcoinltccny_min),
     #(db1.fxbtccny, db2.fxbtccny_min),
-    (db1.cnbtc, db2.cnbtc_min),
-    (db1.huobi, db2.huobi_min)
+    (db1.cnbtc, db2.cnbtc_min, db2.cnbtc_index),
+    (db1.huobi, db2.huobi_min, db2.huobi_index)
 ]
 
 for n in range(0, int(N)):
@@ -35,3 +35,6 @@ for n in range(0, int(N)):
     logging.info("Min stat calculate from " + str(from_ts) + " to " + str(to_ts))
     for col in collections:
         TransStatJob.createTransStat(from_ts, to_ts, TransStatJob.calculateBasicTransStat, col[0], col[1])
+
+for col in collections:
+    TransStatJob.insertMarketIndex(col[1], col[2])
