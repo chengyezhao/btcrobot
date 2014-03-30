@@ -2,14 +2,15 @@ __author__ = 'yunling'
 import time
 import logging
 import Order
+import sys, os
 
 logging.basicConfig(filename = os.path.join(os.getcwd(), 'SimpleRobot.log'), level = logging.INFO)
 
 
-SLEEP_TIME = 10
-SLICE_CNY_AMOUNT = 500
-SLICE_BTC_AMOUNT = 0.1
-
+SLEEP_TIME = 60  #seconds
+SLICE_CNY_AMOUNT = 20
+SLICE_BTC_AMOUNT = 0.01
+ORDER_WAIT_TIME = 60 #seconds
 
 class SimpleRobot:
 
@@ -22,82 +23,104 @@ class SimpleRobot:
 
         while True:
 
-            #得到并保存当前的账户详细
             balance = self.trader.getAccountBalance()
             self.trader.saveBalance(balance)
 
-            #确定是否买入
-            buyConfident = self.strategy.getBuyConfident(self.market)
+            buyConfident = self.strategy.getBuyConfident()
             logging.info("BuyConfident = " + str(buyConfident))
-            if buyConfident > 0.5:
-                self.clearSellOrder()
-                self.buy(SLICE_CNY_AMOUNT)
 
-            #确定是否卖出
-            sellConfident = self.strategy.getSellConfident(self.market)
-            logging.info("SellConfident = " + str(sellConfident))
-            if sellConfident > 0.5:
+            if buyConfident > 0.8:
+                buyAmount = SLICE_CNY_AMOUNT
+                if balance.cny < SLICE_CNY_AMOUNT:
+                    buyAmount = balance.cny
+                self.clearSellOrder()
+                if buyAmount > 0:
+                    self.buy(buyAmount)
+            elif buyConfident < 0.3:
+                sellAmount = SLICE_BTC_AMOUNT
+                if balance.btc < SLICE_BTC_AMOUNT:
+                    sellAmount = balance.btc
                 self.clearBuyOrder()
-                self.sell(SLICE_BTC_AMOUNT)
+                if sellAmount > 0:
+                    self.sell(sellAmount)
+            else:
+                self.clearSellOrder()
+                self.clearBuyOrder()
 
             time.sleep(SLEEP_TIME)
 
+    def clearSellOrder(self):
+        pass
+
+    def clearBuyOrder(self):
+        pass
+
     def buy(self, total_amount):
 
-        slice_amount = SLICE_CNY_AMOUNT
-        if total_amount < slice_amount:
-            slice_amount = total_amount
+        topDepth = self.market.getTopDepth()
+        orderPrice = topDepth['asks'][0]
+        new_order = self.trader.sendOrder(Order.Order(type="buy", amount=total_amount / orderPrice, price=orderPrice))
+        self.trader.saveOrder(new_order)
+        logging.info("New order : " + new_order.toJson().toString())
 
-        while total_amount > 0:
+        if new_order.id == -1:
+            logging.info("Buy Order failed")
+            return
 
-            #构建一笔交易
-            topDepth = self.market.getTopDepth()
-            orderPrice = topDepth['asks']
-            new_order = self.trader.sendOrder(Order.Order(type="buy", amount=slice_amount/orderPrice, price=orderPrice))
-            self.trader.saveOrder(new_order)
-            logging.info("New order : " + new_order.toJson())
+        i = 0
+        while i < ORDER_WAIT_TIME:
+            remote_order = self.trader.getRemoteOrder(new_order)
+            self.trader.saveOrder(remote_order)
+            if remote_order is not None:
+                remote_order.save(self.orderCollection)
+                if remote_order.status == Order.PARR_COMPLETED or remote_order.status == Order.COMPLETED:
+                    logging.info("Buy Order success")
+                    return
+            time.sleep(1)
+            i += 1
 
-            #交易是否成功发送
-            if new_order.id == -1:
-                continue
 
-            #等待交易成功
-            while True:
-                remote_order = self.trader.getRemoteOrder(new_order)
-                self.trader.saveOrder(remote_order)
-                if remote_order is not None:
-                    remote_order.save(self.orderCollection)
-                    if remote_order.status == Order.PARR_COMPLETED or remote_order.status == Order.COMPLETED:
-                        break
-                time.sleep(1)
-
-            total_amount = total_amount - slice_amount
+        logging.info("Buy Order timeout")
+        self.trader.cancelOrderById(new_order.id)
 
     def sell(self, total_amount):
-        slice_amount = SLICE_BTC_AMOUNT
-        if total_amount < slice_amount:
-            slice_amount = total_amount
 
-        while total_amount > 0:
+        topDepth = self.market.getTopDepth()
+        orderPrice = topDepth['bids'][0]
+        new_order = self.trader.sendOrder(Order.Order(type="sell", amount=total_amount, price=orderPrice))
+        self.trader.saveOrder(new_order)
+        logging.info("New order : " + new_order.toJson().toString())
 
-            #构建一笔交易
-            topDepth = self.market.getTopDepth()
-            orderPrice = topDepth['bids']
-            new_order = self.trader.sendOrder(Order.Order(type="sell", amount=slice_amount, price=orderPrice))
-            self.trader.saveOrder(new_order)
-            logging.info("New order : " + new_order.toJson())
+        if new_order.id == -1:
+            logging.info("Sell Order failed")
+            return
 
-            #交易是否成功发送
-            if new_order.id == -1:
-                continue
+        i = 0
+        while i < ORDER_WAIT_TIME:
+            remote_order = self.trader.getRemoteOrder(new_order)
+            if remote_order is not None:
+                self.trader.saveOrder(remote_order)
+                if remote_order.status == Order.PARR_COMPLETED or remote_order.status == Order.COMPLETED:
+                    logging.info("Sell Order success")
+                    return
+            time.sleep(1)
+            i += 1
 
-            #等待交易成功
-            while True:
-                remote_order = self.trader.getRemoteOrder(new_order)
-                if remote_order is not None:
-                    self.trader.saveOrder(remote_order)
-                    if remote_order.status == Order.PARR_COMPLETED or remote_order.status == Order.COMPLETED:
-                        break
-                time.sleep(1)
 
-            total_amount = total_amount - slice_amount
+        logging.info("Sell Order timeout")
+        self.trader.cancelOrderById(new_order.id)
+
+if __name__ == '__main__':
+    from SimpleRobot import SimpleRobot
+    from pymongo import MongoClient
+    from CNBTC_Trader import Trader
+    from SimpleStrategy import SimpleStrategy
+    from Market import Market
+    client = MongoClient("mongodb://115.28.4.59:27017")
+    market = Market(client.trans.cnbtc, client.depths.cnbtc, client.trans_stat.cnbtc_min,
+                    client.trans_stat.cnbtc_hr, client.trans_stat.cnbtc_index)
+    trader = Trader(client.order.cnbtc, client.blanace.cnbtc)
+    strategy = SimpleStrategy(market)
+    robot = SimpleRobot(market, trader, strategy)
+    robot.run()
+

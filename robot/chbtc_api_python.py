@@ -78,7 +78,7 @@ class chbtc_api:
 
     def sellOrder(self, amount, price, symbol='btc'):
         params = "method=order&accesskey=" + self.mykey + "&price=" + str(price) \
-                 + "&amount=" + amount + "&tradeType=0&currency=" + symbol
+                 + "&amount=" + str(amount) + "&tradeType=0&currency=" + symbol
         path = 'order'
         return self.__api_call(path, params)
 

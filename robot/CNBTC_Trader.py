@@ -20,7 +20,7 @@ class Trader:
 
     def getAccountBalance(self):
         result = self.api.query_account()
-        if result.has_key('code'):
+        if result and result.has_key('code'):
             logging.error("getAccountBalance, API return error code " + str(result['code']))
             return None
         balance = result['result']['balance']
@@ -41,7 +41,7 @@ class Trader:
         else:
             if order.type == 'sell':
                 result = self.api.sellOrder(order.amount, order.price)
-                if result['code'] == 1000:
+                if result and result['code'] == 1000:
                         order.id = result['id']
                 else:
                     logging.error("sendOrder, API return error code " + str(result['code']))
@@ -98,15 +98,16 @@ if __name__ == '__main__':
     client = MongoClient("mongodb://115.28.4.59:27017")
     col = client.order.cnbtc
     col2 = client.balance.cnbtc
-    t = Trader()
+    t = Trader(col, col2)
     b = t.getAccountBalance()
-    b.save(col2)
+    #b.save(col2)
     print b.toJson()
+    print "---------------"
     orders = t.getLatestOrders('buy')
     for o in orders:
         print o.toJson()
         #o.save(col)
     remote_order = t.getRemoteOrder(orders[0])
     print remote_order.toJson()
-    #new_order = t.sendOrder(Order.Order(type='buy', amount=0.001, price=30))
+    #new_order = t.sendOrder(Order.Order(type='sell', amount=0.001, price=30000))
     #print new_order.toJson()

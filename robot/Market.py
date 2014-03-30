@@ -9,11 +9,12 @@ class Market:
     class for market data access
     """
 
-    def __init__(self, trans, depth, stat_min, stat_hour):
+    def __init__(self, trans, depth, stat_min, stat_hour, trend_index):
         self.trans = trans
         self.depth = depth
         self.stat_min = stat_min
         self.stat_hour = stat_hour
+        self.trend_index = trend_index
         self.now = False
 
     def __2array(self, cursor):
@@ -111,25 +112,34 @@ class Market:
         raw_min_data = self.getLastNMinStat(W * 2)
         min_price_data = Util.nozeros([x['end'] for x in raw_min_data])
         meas = Util.moving_average(min_price_data, W)
-        useful_price = min_price_data[-(N+1):-1]
-        useful_meas = meas[-(N+1):-1]
+        useful_price = min_price_data[-(W+1):-1]
+        useful_meas = meas[-(W+1):-1]
         return Util.marketTrendIndex(useful_price, useful_meas)
+
+    def getMarketTrendIndexInLastN(self, W):
+        r = self.__2array(self.trend_index.find({'date': {
+            "$lte": self.__now()
+        }}).sort([("date", -1)]).limit(W))
+        r.reverse()
+        return r
 
 
 if __name__ == '__main__':
     from pymongo import MongoClient
+    from datetime import datetime
+    from Market import Market
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     client = MongoClient("mongodb://115.28.4.59:27017")
-    market = Market(client.trans.cnbtc, client.depths.cnbtc, client.trans_stat.cnbtc_min, client.trans_stat.cnbtc_hr)
+    market = Market(client.trans.huobi, client.depths.huobi, client.trans_stat.huobi_min, client.trans_stat.huobi_hr, client.trans_stat.huobi_index)
     now = datetime.now()
-    plt.figure(1, figsize=(15, 10))
+    plt.figure(1, figsize=(15, 15))
     for i in range(1, 5):
         plt.subplot(410 + i)
         market.setNow(now)
         N = pow(2, i - 1) * 60
-        M = 1 * 24 * 6
+        M = 2 * 12 * 6
         ia = []
         t = []
         for i in range(0, M):
@@ -139,7 +149,7 @@ if __name__ == '__main__':
             ia.append(index)
         ia.reverse()
         t.reverse()
-        plt.plot(t, ia, '-o')
-        plt.title("Market Trend with N = " + str(N))
+        plt.plot(t, ia, '-')
+        plt.title("Market Trend with N = " + str(N) + " min")
         plt.grid()
-        plt.savefig("/Users/yunling/Documents/btcrobot/robot/MarketTrend.png")
+    plt.savefig("/Users/yunling/Documents/btcrobot/robot/MarketTrend.png")
