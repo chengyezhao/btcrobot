@@ -1,8 +1,8 @@
 __author__ = 'chengye'
 
 import TransJob
-import robot.Util as Util
-from datetime import datetime, timedelta
+import Util as Util
+from datetime import datetime
 from pymongo import MongoClient
 
 def calculateBasicTransStat(from_ts, to_ts, trans):
