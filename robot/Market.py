@@ -133,7 +133,7 @@ if __name__ == '__main__':
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     client = MongoClient("mongodb://115.28.4.59:27017")
-    market = Market(client.trans.huobi, client.depths.huobi, client.trans_stat.huobi_min, client.trans_stat.huobi_hr, client.trans_stat.huobi_index)
+    market = Market(client.trans.cnbtc, client.depths.cnbtc, client.trans_stat.cnbtc_min, client.trans_stat.cnbtc_hr, client.trans_stat.cnbtc_index)
     now = datetime.now()
     index_list = market.getMarketTrendIndexInLastN(60 * 24)
     index_480 = [x['index_480'] for x in index_list]
