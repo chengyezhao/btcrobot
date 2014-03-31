@@ -1,8 +1,9 @@
+
 __author__ = 'yunling'
 
 from datetime import datetime, timedelta
 import Util
-
+import sys
 
 class Market:
     """
@@ -152,4 +153,4 @@ if __name__ == '__main__':
         plt.plot(t, ia, '-')
         plt.title("Market Trend with N = " + str(N) + " min")
         plt.grid()
-    plt.savefig("/Users/yunling/Documents/btcrobot/robot/MarketTrend.png")
+    plt.savefig(sys.argv[1])
