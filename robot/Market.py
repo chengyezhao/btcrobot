@@ -135,6 +135,55 @@ if __name__ == '__main__':
     client = MongoClient("mongodb://115.28.4.59:27017")
     market = Market(client.trans.huobi, client.depths.huobi, client.trans_stat.huobi_min, client.trans_stat.huobi_hr, client.trans_stat.huobi_index)
     now = datetime.now()
+    index_list = market.getMarketTrendIndexInLastN(60 * 24)
+    index_480 = [x['index_480'] for x in index_list]
+    index_240 = [x['index_240'] for x in index_list]
+    index_120 = [x['index_120'] for x in index_list]
+    index_60 = [x['index_60'] for x in index_list]
+    t = [x['date'] for x in index_list]
+    plt.figure(1, figsize=(15, 15))
+
+    price_list = market.getMALastNMin(60 * 24, 10)
+
+    plt.subplot(511)
+    plt.plot(t, index_60, '-')
+    plt.title("Market Trend with N = 60 min")
+    plt.grid()
+
+    plt.subplot(512)
+    plt.plot(t, index_120, '-')
+    plt.title("Market Trend with N = 120 min")
+    plt.grid()
+
+    plt.subplot(513)
+    plt.plot(t, index_240, '-')
+    plt.title("Market Trend with N = 240 min")
+    plt.grid()
+
+    plt.subplot(514)
+    plt.plot(t, index_480, '-')
+    plt.title("Market Trend with N = 480 min")
+    plt.grid()
+
+    plt.subplot(515)
+    plt.plot(t, price_list, '-')
+    plt.title("Market Price MA")
+    plt.grid()
+
+    plt.savefig(sys.argv[1])
+
+
+
+if __name__ == '__old_main__':
+    from pymongo import MongoClient
+    from datetime import datetime
+    from Market import Market
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    client = MongoClient("mongodb://115.28.4.59:27017")
+    market = Market(client.trans.huobi, client.depths.huobi, client.trans_stat.huobi_min, client.trans_stat.huobi_hr, client.trans_stat.huobi_index)
+    now = datetime.now()
     plt.figure(1, figsize=(15, 15))
     for i in range(1, 5):
         plt.subplot(410 + i)
