@@ -1,8 +1,11 @@
+
 __author__ = 'yunling'
 import time
 import logging
 import Order
 import sys, os
+from Balance import Balance
+
 
 logging.basicConfig(filename = os.path.join(os.getcwd(), 'SimpleRobot.log'), level = logging.INFO)
 
@@ -21,23 +24,26 @@ class SimpleRobot:
 
     def run(self):
 
+        balance = Balance(0,0,0,0)
+
         while True:
 
             try:
 
-                balance = self.trader.getAccountBalance()
+                new_balance = self.trader.getAccountBalance()
+                if balance != new_balance:
+                    self.trader.saveBalance(new_balance)
+                    balance = new_balance
 
                 buyConfident = self.strategy.getBuyConfident()
                 logging.info("BuyConfident = " + str(buyConfident))
 
                 if buyConfident > 0.8:
-                    self.trader.saveBalance(balance)
                     buyAmount = SLICE_CNY_AMOUNT
                     if balance.cny > SLICE_CNY_AMOUNT:
                         self.clearSellOrder()
                         self.buy(buyAmount)
                 elif buyConfident < 0.3:
-                    self.trader.saveBalance(balance)
                     sellAmount = SLICE_BTC_AMOUNT
                     if balance.btc > SLICE_BTC_AMOUNT:
                         self.clearBuyOrder()

@@ -28,3 +28,6 @@ class Balance:
             'cny': self.cny,
             'cny_frozen': self.cny_frozen
         }
+
+    def __eq__(self, other):
+        return self.cny == other.cny and self.btc == other.btc and self.cny_frozen == other.cny_frozen and self.btc_frozen == other.btc_frozen
