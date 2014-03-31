@@ -7,9 +7,9 @@ import sys, os
 logging.basicConfig(filename = os.path.join(os.getcwd(), 'SimpleRobot.log'), level = logging.INFO)
 
 
-SLEEP_TIME = 60  #seconds
-SLICE_CNY_AMOUNT = 20
-SLICE_BTC_AMOUNT = 0.01
+SLEEP_TIME = 30  #seconds
+SLICE_CNY_AMOUNT = 200
+SLICE_BTC_AMOUNT = 0.05
 ORDER_WAIT_TIME = 60 #seconds
 
 class SimpleRobot:
@@ -23,29 +23,30 @@ class SimpleRobot:
 
         while True:
 
-            balance = self.trader.getAccountBalance()
-            self.trader.saveBalance(balance)
+            try:
 
-            buyConfident = self.strategy.getBuyConfident()
-            logging.info("BuyConfident = " + str(buyConfident))
+                balance = self.trader.getAccountBalance()
 
-            if buyConfident > 0.8:
-                buyAmount = SLICE_CNY_AMOUNT
-                if balance.cny < SLICE_CNY_AMOUNT:
-                    buyAmount = balance.cny
-                self.clearSellOrder()
-                if buyAmount > 0:
-                    self.buy(buyAmount)
-            elif buyConfident < 0.3:
-                sellAmount = SLICE_BTC_AMOUNT
-                if balance.btc < SLICE_BTC_AMOUNT:
-                    sellAmount = balance.btc
-                self.clearBuyOrder()
-                if sellAmount > 0:
-                    self.sell(sellAmount)
-            else:
-                self.clearSellOrder()
-                self.clearBuyOrder()
+                buyConfident = self.strategy.getBuyConfident()
+                logging.info("BuyConfident = " + str(buyConfident))
+
+                if buyConfident > 0.8:
+                    self.trader.saveBalance(balance)
+                    buyAmount = SLICE_CNY_AMOUNT
+                    if balance.cny > SLICE_CNY_AMOUNT:
+                        self.clearSellOrder()
+                        self.buy(buyAmount)
+                elif buyConfident < 0.3:
+                    self.trader.saveBalance(balance)
+                    sellAmount = SLICE_BTC_AMOUNT
+                    if balance.btc > SLICE_BTC_AMOUNT:
+                        self.clearBuyOrder()
+                        self.sell(sellAmount)
+                else:
+                    self.clearSellOrder()
+                    self.clearBuyOrder()
+            except:
+                pass
 
             time.sleep(SLEEP_TIME)
 
@@ -61,7 +62,7 @@ class SimpleRobot:
         orderPrice = topDepth['asks'][0]
         new_order = self.trader.sendOrder(Order.Order(type="buy", amount=total_amount / orderPrice, price=orderPrice))
         self.trader.saveOrder(new_order)
-        logging.info("New order : " + new_order.toJson().toString())
+        logging.info("New order : " + str(new_order.toJson()))
 
         if new_order.id == -1:
             logging.info("Buy Order failed")
@@ -89,7 +90,7 @@ class SimpleRobot:
         orderPrice = topDepth['bids'][0]
         new_order = self.trader.sendOrder(Order.Order(type="sell", amount=total_amount, price=orderPrice))
         self.trader.saveOrder(new_order)
-        logging.info("New order : " + new_order.toJson().toString())
+        logging.info("New order : " + str(new_order.toJson()))
 
         if new_order.id == -1:
             logging.info("Sell Order failed")
@@ -119,7 +120,7 @@ if __name__ == '__main__':
     client = MongoClient("mongodb://115.28.4.59:27017")
     market = Market(client.trans.cnbtc, client.depths.cnbtc, client.trans_stat.cnbtc_min,
                     client.trans_stat.cnbtc_hr, client.trans_stat.cnbtc_index)
-    trader = Trader(client.order.cnbtc, client.blanace.cnbtc)
+    trader = Trader(client.order.cnbtc, client.balance.cnbtc)
     strategy = SimpleStrategy(market)
     robot = SimpleRobot(market, trader, strategy)
     robot.run()
