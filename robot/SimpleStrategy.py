@@ -6,8 +6,8 @@ import os
 
 logging.basicConfig(filename = os.path.join(os.getcwd(), 'SimpleRobot.log'), level = logging.INFO)
 
-LONG_WINDOW_SIZE = 60 * 12   #12 hours
-SHORT_WINDOW_SIZE = 5       #5 mins
+LONG_WINDOW_SIZE = 60 * 24   #12 hours
+SHORT_WINDOW_SIZE = 10       #5 mins
 MIN_TH = -10
 MAX_TH = 10
 
