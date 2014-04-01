@@ -6,7 +6,7 @@ import os
 
 logging.basicConfig(filename = os.path.join(os.getcwd(), 'SimpleRobot.log'), level = logging.INFO)
 
-LONG_WINDOW_SIZE = 60 * 24   #12 hours
+LONG_WINDOW_SIZE = 60 * 12   #12 hours
 SHORT_WINDOW_SIZE = 10       #5 mins
 MIN_TH = -10
 MAX_TH = 10
@@ -73,9 +73,9 @@ class SimpleStrategy:
                 return 0.20                 #start sell
             else:
                 return 0.4                  #pause sell
-        elif diff_480_score > 0:
+        elif current_index_480 < MIN_TH and diff_480_score > 0:
             return 0.95                     #start buy
-        elif diff_480_score < 0:
+        elif current_index_480 > MAX_TH and  diff_480_score < 0:
             return 0.15
         else:                               #start sell
             return 0.5
